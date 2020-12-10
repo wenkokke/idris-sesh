@@ -1,0 +1,4 @@
+package sesh
+
+modules   = Sesh
+sourcedir = src
