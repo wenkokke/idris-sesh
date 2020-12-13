@@ -1,4 +1,4 @@
 package sesh
 
-modules   = Sesh
-sourcedir = src
+depends = contrib
+modules = System.Concurrency.Channel.Linear
