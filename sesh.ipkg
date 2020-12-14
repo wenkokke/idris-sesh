@@ -2,4 +2,5 @@ package sesh
 
 depends = contrib
 modules = System.Concurrency.Channel.Linear
-        , System.Concurrency.Channel.Session
+        , System.Concurrency.Channel.Session.Raw
+        , System.Concurrency.Channel.Session.Tree

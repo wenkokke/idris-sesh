@@ -1,4 +1,4 @@
-module System.Concurrency.Channel.Session
+module System.Concurrency.Channel.Session.Raw
 
 import Control.Linear.LIO
 import System.Concurrency
@@ -28,8 +28,9 @@ data Session : SessionType -> Type where
     MkReceive : (1 receiver : Receiver (a, Session s)) -> Session (Receive a s)
     MkEnd : (1 barrier : Barrier) -> Session End
 
+||| Create a new session and return two dual endpoints.
 export
-makeSession : LinearIO io =>
+makeSession : (LinearBind io, HasIO io) =>
               {1 s : SessionType} ->
               L io (Session s, Session (dual s))
 makeSession {s = Send a s} = do
@@ -42,8 +43,9 @@ makeSession {s = End} = do
     barrier <- makeBarrier 2
     pure (MkEnd barrier, MkEnd barrier)
 
+||| Send a value of type `a` and return the continuation of the session `s`.
 export
-sessionSend : LinearIO io =>
+sessionSend : (LinearBind io, HasIO io) =>
               {1 s : SessionType} ->
               (1 sess : Session (Send a s)) ->
               (1 val : a) ->
@@ -53,15 +55,18 @@ sessionSend {s = s} (MkSend sender) val = do
     linearChannelSend sender (val, theirCont)
     pure myCont
 
+||| Receive a value of type `a`, and return a pair of the received value and the
+||| continuation of the session `s`.
 export
-sessionReceive : LinearIO io =>
+sessionReceive : (LinearBind io, HasIO io) =>
                  (1 sess : Session (Receive a s)) ->
                  L io (a, Session s)
 sessionReceive (MkReceive receiver) = do
     linearChannelReceive receiver
 
+||| End a session.
 export
-sessionEnd : LinearIO io =>
+sessionEnd : (LinearBind io, HasIO io) =>
              (1 sess : Session End) ->
              L io ()
 sessionEnd (MkEnd barrier) = do
